@@ -8,8 +8,8 @@ import socket
 host = "127.0.0.1" #set to server ip or hostname
 port = 30000
 
-pings = 5
-timeout = 4
+pings = 10
+timeout = 5
 sleep_time = 1
 message_bytes = 30
 
@@ -25,7 +25,7 @@ clientSocket.settimeout(timeout)
 
 
 def show_summary():
-    total_time = (time.time() - time_start - 1) * 1000
+    total_time = (time.time() - time_start) * 1000
 
     print('---  Ping e Pong com o servidor %s ---' % (host))
     print('%d packets transmitted, %d received, %0.0f%% packet loss, time %0.0fms' % (ping_count, ping_received, (ping_count - ping_received) / ping_count * 100, total_time))
@@ -36,25 +36,27 @@ time_start = time.time()
 
 for seq in range(pings):
     try:
-        msg = 'ping - envio %d' %seq
-        message =  msg.encode("utf-8")
-        if len(message) <= 30:
-            clientSocket.sendto(message, (host, port))
-            start = time.time()
-            data, server = clientSocket.recvfrom(2048)
-            end = time.time()
-            vFinal = (end - start) * 1000
-            if vFinal < min_ping: min_ping = vFinal
-            if vFinal > max_ping: max_ping = vFinal
-            ping_count += 1
-            ping_received += 1
-            avg_ping += vFinal
-            print('recebido %s bytes from %s udp_seq=%d time=%0.1f ms' % (data.decode(), host, seq, vFinal))
-            time.sleep(sleep_time)
-        else: 
-            print('Proibido o envio acima de 30 caracteres!')
-    except socket.timeout as e:
+        id = '{0:05b}'.format(seq)
+        msg = '0000 %s Bruno Gomes de Azevedo' %id
+        msg_up = msg[:message_bytes]
+       
+        message =  msg_up.encode("utf-8")
+        clientSocket.sendto(message, (host, port))
+        start = time.time()
+        data, server = clientSocket.recvfrom(2048)
+        end = time.time()
+        vFinal = (end - start) * 1000
+        if vFinal < min_ping: min_ping = vFinal
+        if vFinal > max_ping: max_ping = vFinal
+        ping_count += 1
+        ping_received += 1
+        avg_ping += vFinal
+        print('recebido %s bytes from %s udp_seq=%d time=%0.1f ms' % (data.decode(), host, seq, vFinal))
+        time.sleep(sleep_time)
+
+    except socket.timeout as error:
         print('Dado = %d REQUEST TIMED OUT' % (seq))
+        ping_received = ping_received - 1
     except KeyboardInterrupt:
         show_summary()
 
