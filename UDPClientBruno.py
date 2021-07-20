@@ -22,7 +22,8 @@ avg_ping = 0
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 clientSocket.settimeout(timeout)
 
-
+def data_error(seq):
+    print("No %dª envio, o servidor respondeu algo que nao foi reconhecido nos nossos padroes do protocolo" %(seq))
 
 def show_summary():
     total_time = (time.time() - time_start) * 1000
@@ -33,6 +34,7 @@ def show_summary():
     sys.exit()
 
 time_start = time.time()
+
 
 for seq in range(pings):
     try:
@@ -53,7 +55,8 @@ for seq in range(pings):
         avg_ping += vFinal
         print('recebido %s bytes from %s udp_seq=%d time=%0.1f ms' % (data.decode(), host, seq, vFinal))
         time.sleep(sleep_time)
-
+        if (data.decode() != '0001'):
+            data_error(seq)
     except socket.timeout as error:
         print('Dado = %d REQUEST TIMED OUT' % (seq))
         ping_received = ping_received - 1
