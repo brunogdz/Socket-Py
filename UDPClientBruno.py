@@ -22,6 +22,11 @@ avg_ping = 0
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 clientSocket.settimeout(timeout)
 
+def checkMessage(mes):
+    if(mes != '1'):
+        return True
+
+
 def data_error(seq):
     print("No %dª envio, o servidor respondeu algo que nao foi reconhecido nos nossos padroes do protocolo" %(seq))
 
@@ -34,17 +39,18 @@ def show_summary():
     sys.exit()
 
 time_start = time.time()
-
+packetLoss = 0
 
 for seq in range(pings):
     try:
-        id = '{0:05b}'.format(seq)
-        msg = '0000 %s Bruno Gomes de Azevedo' %id
-        msg_up = msg[:message_bytes]
-       
+        
+        start = time.time()
+        msg = '0000%d' %seq
+        timestamp = str(int((start-time_start)*1000)).zfill(4)
+        msgf = '%s0%sBruno Gomes de Azevedo' %(msg,timestamp[:4])
+        msg_up = msgf[:message_bytes]
         message =  msg_up.encode("utf-8")
         clientSocket.sendto(message, (host, port))
-        start = time.time()
         data, server = clientSocket.recvfrom(2048)
         end = time.time()
         vFinal = (end - start) * 1000
@@ -53,13 +59,16 @@ for seq in range(pings):
         ping_count += 1
         ping_received += 1
         avg_ping += vFinal
-        print('recebido %s bytes from %s udp_seq=%d time=%0.1f ms' % (data.decode(), host, seq, vFinal))
+
+        print('recebido %s from %s time=%0.1f ms' % (data.decode(), host, vFinal))
         time.sleep(sleep_time)
-        if (data.decode() != '0001'):
-            data_error(seq)
+        teste = data.decode()[5]
+        check = checkMessage(teste)
+        if(check == True):
+            ping_received = ping_received - 1
+            #ping_received = ping_received - 1
     except socket.timeout as error:
         print('Dado = %d REQUEST TIMED OUT' % (seq))
-        ping_received = ping_received - 1
     except KeyboardInterrupt:
         show_summary()
 
