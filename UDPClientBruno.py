@@ -5,7 +5,8 @@ import time
 import sys
 import socket
 
-host = "127.0.0.1" #set to server ip or hostname
+# host = "200.137.66.110" #set to server ip or hostname
+host = "127.0.0.1"
 port = 30000
 
 pings = 10
@@ -47,7 +48,7 @@ def verificaCampos(str,host,vFinal):
 def data_error(seq):
     print("No %dª envio, o servidor respondeu algo que nao foi reconhecido nos nossos padroes do protocolo" %(seq))
 
-def show_summary():
+def rtt_print():
     total_time = (time.time() - time_start) * 1000
 
     print('---  Ping e Pong com o servidor %s ---' % (host))
@@ -91,7 +92,7 @@ for seq in range(pings):
         print('Dado = %d REQUEST TIMED OUT' % (seq))
         timeOuts += 1
     except KeyboardInterrupt:
-        show_summary()
+        rtt_print()
 print('%d mensagens fora do padrão do protocolo' %(mensagemErro))
 print('Houve %d TIME OUTS' %(timeOuts))
-show_summary()
+rtt_print()
