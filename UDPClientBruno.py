@@ -18,7 +18,7 @@ max_ping = 0
 ping_count = 0
 ping_received = 0
 avg_ping = 0
-
+timeOuts = 0
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 clientSocket.settimeout(timeout)
 
@@ -89,8 +89,9 @@ for seq in range(pings):
             #ping_received = ping_received - 1
     except socket.timeout as error:
         print('Dado = %d REQUEST TIMED OUT' % (seq))
-        
+        timeOuts += 1
     except KeyboardInterrupt:
         show_summary()
-print('Houve %d fora do padrão do protocolo' %(mensagemErro))
+print('%d mensagens fora do padrão do protocolo' %(mensagemErro))
+print('Houve %d TIME OUTS' %(timeOuts))
 show_summary()
